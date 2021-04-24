@@ -1,2 +1,2 @@
-# collide-server-monitor
-Collide Server Monitor
+# Collide Server Monitor
+NodeJS Server Monitoring Tool
