@@ -5,69 +5,180 @@
     <title>Collide Server Monitor</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"
+        integrity="sha512-VMsZqo0ar06BMtg0tPsdgRADvl0kDHpTbugCBBrL55KmucH6hP9zWdLIWY//OTfMnzz6xWQRxQqsUFefwHuHyg=="
+        crossorigin="anonymous"></script>
     <style>
-        body { background: #131516; color: #fff; margin: 0; }
-        .navTop { width: 100%; height: 32px; background: #1a2a64; border: 0 }
-        .navTop div { display: flex; margin: 0 auto; width: 100%; max-width: 1000px; height: 100% }
-        .navTop div h1, .navTop div a { margin: 0 auto; padding: 5px }
-        .navTop div h1 { ont-size: 20px; flex: 1 }
-        .navTop div a { text-decoration: none; cursor: pointer; font-size: 18px }
-        .navTop div a:hover { background: rgba(0, 6, 59, 0.589) }
-        .content { text-align: center; margin: 0 auto; width: 100%; max-width: 1000px; }
-        .content .box { margin: 0 auto; text-align: center; box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.425); margin: 25px 0; padding: 10px; background-color: #0f181d; }
-        h3 { margin: 0 auto; margin-top: 10px; font-size: 18px; font-weight: normal; }
-        input[type=text] { width: 100%; padding: 5px 10px; margin: 5px 0; display: inline-block; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { display: inline-block; background: #1a2a64; color: #fff; border: solid 1px #fff; cursor: pointer; }
+        body {
+            background: #131516;
+            color: #fff;
+            margin: 0;
+        }
+
+        .navTop {
+            width: 100%;
+            height: 32px;
+            background: #1a2a64;
+            border: 0;
+        }
+
+        .navTop div {
+            display: flex;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 1000px;
+            height: 100%;
+        }
+
+        .navTop div h1,
+        .navTop div a {
+            margin: 0 auto;
+            padding: 5px;
+        }
+
+        .navTop div h1 {
+            font-size: 20px;
+            flex: 1;
+        }
+
+        .navTop div a {
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .navTop div a:hover {
+            background: rgba(0, 6, 59, 0.589);
+        }
+
+        .content {
+            text-align: center;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .content .box {
+            margin: 0 auto;
+            text-align: center;
+            box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.425);
+            margin: 25px 0;
+            padding: 10px;
+            background-color: #0f181d;
+        }
+
+        h3 {
+            margin: 0 auto;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        input[type=text] {
+            width: 100%;
+            padding: 5px 10px;
+            margin: 5px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: inline-block;
+            background: #1a2a64;
+            color: #fff;
+            border: solid 1px #fff;
+            cursor: pointer;
+        }
     </style>
 </head>
+
 <body>
-    <nav class="navTop"><div><h1>Collide</h1><a>Home</a></div></nav>
+    <nav class="navTop">
+        <div>
+            <h1>Collide</h1>
+            <a>Home</a>
+        </div>
+    </nav>
     <div class="content">
-        <div class="box"> <small id="ws-connection-status-display" style="color: red;">Status: null</small><small id="ws-server-do-update-display" style="color: red;">Update: null</small></div>
+        <div class="box">
+            <small id="ws-connection-status-display" style="color: red;">Status: null</small>
+            <small id="ws-server-do-update-display" style="color: red;">Update: null</small>
+
+        </div>
     </div>
     <div class="content" id="tab-index-home">
         <div class="box">
-            <h4>Home</h4><div><small>Server List:</small><button onclick="getServerList()">⟳</button><div id='server-list-display'></div></div>
+            <h4>Home</h4>
+            <div>
+                <small>Server List:</small><button onclick="getServerList()">⟳</button>
+                <div id='server-list-display'></div>
+            </div>
+            <canvas id="memory-Chart"></canvas>
+            <canvas id="cpus-Chart"></canvas>
         </div>
     </div>
     <div class="content" id="tab-index-settings">
         <div class="box">
             <h4>Settings</h4>
-            <input id="ws-connection-input-address" type="text" placeholder="Server Address" value="ws://localhost:8080">
-            <button onclick="connectToSocket()">Connect</button><button onclick="pingServer()">Ping Server</button>
+            <input id="ws-connection-input-address" type="text" placeholder="Server Address"
+                value="ws://localhost:8080">
+            <button onclick="connectToSocket()">Connect</button>
+            <button onclick="pingServer()">Ping Server</button>
             <div style="margin-top: 10px;">
-                <input id="ws-connection-update-speed" type="number" placeholder="Update Speed" value="1" max="100" min="0"><button onclick="toggleDoUpdate()">Toggle Update</button>
+                <input id="ws-connection-update-speed" type="number" placeholder="Update Speed" value="1" max="100"
+                    min="0">
+                <button onclick="toggleDoUpdate()">Toggle Update</button>
             </div>
+
         </div>
     </div>
     <script>
         const gemi = (id) => { return document.getElementById(id) } // Ez get element by Id 
         var socket; // Make Socket Var
-        var sockVars = {connected: false, update:false, updateInterval: 1000, serverIdList: []};
-        function setStatusDisplay (color, status) { gemi('ws-connection-status-display').style.color = color; gemi('ws-connection-status-display').innerText = "Status: " + status; }
-        function setUpdateDisplay(color, status) { gemi('ws-server-do-update-display').style.color = color; gemi('ws-server-do-update-display').innerText = "Update: " + status;}
+        var sockVars = { connected: false, update: false, updateInterval: 1000, serverIdList: [] };
+
+
+        function setStatusDisplay(color, status) {
+            gemi('ws-connection-status-display').style.color = color;
+            gemi('ws-connection-status-display').innerText = "Status: " + status;
+        }
+
+        function setUpdateDisplay(color, status) {
+            gemi('ws-server-do-update-display').style.color = color;
+            gemi('ws-server-do-update-display').innerText = "Update: " + status;
+        }
 
         function toggleDoUpdate() {
-            if(!sockVars.update) {
+            if (!sockVars.update) {
                 let update = gemi('ws-connection-update-speed').value;
-                sockVars.update = true; sockVars.updateInterval = update * 1000;
+                sockVars.update = true;
+                sockVars.updateInterval = update * 1000;
                 setUpdateDisplay('green', `True: ${update}`)
             } else {
-                sockVars.update = false; sockVars.updateInterval = 1000;
+                sockVars.update = false;
+                sockVars.updateInterval = 1000;
                 setUpdateDisplay('red', `False`)
             }
         }
 
-        function sockSend (json) { socket.send(JSON.stringify(json)) }
+        function sockSend(json) {
+            socket.send(JSON.stringify(json));
+        }
 
         function connectToSocket() {
             // Create WebSocket connection.
             socket = new WebSocket(gemi('ws-connection-input-address').value);
+
+
             // Connection opened
             socket.addEventListener('open', (wso) => {
                 // Set Status Display
                 setStatusDisplay('green', 'Open')
+
                 sockVars.connected = true;
+
                 // Send first message to server
                 sockSend({ type: "clientEstablish", message: "GSC" });
                 getServerList()
@@ -76,38 +187,124 @@
             // Listen for messages
             socket.addEventListener('message', (msg) => {
                 msg = JSON.parse(msg.data)
-                console.log('Message from server ', msg);
+                if (!msg.payload) { console.log('Message from server ', msg) };
 
                 if (msg.type == "serverList") {
                     var html = ''
-                    msg.servers.forEach(s=>{
-                        sockVars.serverIdList.push(s.id); html += `<h3>${s.name} | ${s.id} | <button>View</button></h3>`
+                    msg.servers.forEach(s => {
+                        sockVars.serverIdList.push(s.id)
+                        html += `<h3>${s.name} | ${s.id} | <button>View</button></h3>`
                     })
                     gemi("server-list-display").innerHTML = html;
                 }
+
+                if (msg.type === "performance" && msg.payload) {
+                    var payload = JSON.parse(msg.payload);
+                    console.log(payload, `Mem: ${Math.round(payload.mem.used / payload.mem.total * 100)}%`, `CPU: ${Math.round(payload.load.currentLoad)}%`, `CPU IDLE: ${Math.round(payload.load.currentLoadIdle)}%`)
+                    addData(mainDisplayChart, '', 0, Math.round(payload.mem.used / payload.mem.total * 100));
+                    addData(ChartCpus, `${Math.round(payload.load.currentLoad)}%`, 0, Math.round(payload.load.currentLoad));
+                }
+
             });
+
             // On Close
             socket.addEventListener('close', (wsc) => {
-                console.log(wsc); sockVars.connected = false;
+                console.log(wsc);
+                sockVars.connected = false;
+
                 // Set 
                 setStatusDisplay('red', wsc.code)
             })
-        }  
+        }
+
+
         function pingServer() {
-            if (sockVars.connected) { sockSend({type:'ping', message:'PiNg'})
-            } else { alert("Socket Not Connected") }
+            if (sockVars.connected) {
+                sockSend({ type: 'ping', message: 'PiNg' })
+            } else {
+                alert("Socket Not Connected")
+            }
         }
+
         function getServerList() {
-            if (sockVars.connected) { sockSend({ type: "getServerList" });
-            } else { alert("Socket Not Connected") }
+            if (sockVars.connected) {
+                sockSend({ type: "getServerList" });
+            } else {
+                alert("Socket Not Connected")
+            }
         }
+
+
         // Update Interval
-        var UpdateInterval = setInterval(function() { 
-            if (sockVars.update) { 
+        var UpdateInterval = setInterval(function () {
+            if (sockVars.update) {
                 console.log("Update")
                 sockSend({ type: "getServerStats", servers: sockVars.serverIdList });
+
             }
         }, sockVars.updateInterval);
+
+
+    </script>
+    <script>
+        // Charts
+        var mainDisplayChart = makeChart("Memory Load", "Usage %", "Memory", "red", 'memory-Chart');
+
+        var ChartCpus = makeChart("CPU Load", "Usage %", "CPU", "blue", 'cpus-Chart')
+
+        function makeChart(title, yName, xName, color, eid, datasets) {
+            var data = {
+                labels: [],
+                datasets: [{ label: xName, borderColor: color, fill: true }]
+            };
+
+            if (datasets) { data.datasets = datasets };
+
+
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: title
+                        },
+                        legend: {
+                            position: 'top',
+                        },
+                    },
+                    interaction: {
+                        intersect: true,
+                        mode: 'nearest',
+                    }, scales: {
+                        y: {
+                            display: true,
+                            title: { display: true, text: yName },
+                            suggestedMin: 0, suggestedMax: 100
+                        }
+                    }
+                }
+            };
+            return new Chart(document.getElementById(eid), config);
+        }
+
+        function addData(chart, label, dataset, data) {
+            chart.data.labels.push(label);
+            chart.data.datasets[dataset].data.push(data);
+            chart.update();
+        }
+
+        function removeData(chart) {
+            chart.data.labels.pop();
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.pop();
+            });
+            chart.update();
+        }
+
     </script>
 </body>
+
 </html>
