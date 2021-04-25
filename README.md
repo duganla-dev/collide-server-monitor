@@ -5,13 +5,13 @@ NodeJS Server Monitoring Tool
 
 
 ## Server
-`server.js` Is the Server for the client to conntect to.
+`server.js` Is the Server for the client(s) to conntect to.
 
 ## Client
-`client.js` Will run on the serer that you want to monitor. Config.txt is sets the server Adress, Port, Server Name, Server ID.
+`client.js` Will run on the server that you want to monitor. Config.txt sets the server: Adress, Port, Server Name, Server ID.
 
 ## Dashboard
-`server.html` Is the dashboard to monitor the clients 
+`server.html` Is the dashboard to monitor the client(s) 
 
 ## Notes
 `server.html` will be renamed to `dashboard.html`
