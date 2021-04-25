@@ -36,15 +36,15 @@ si.memLayout(data => {
     //console.log(data)
 })
 
-si.mem(data => {
-    //console.log(data)
-})
 
 
-si.currentLoad(data => {
-    //console.log("currentLoad", data)
-})
-
+function getSpecs(cb) {
+    si.mem(mem => {
+        si.currentLoad(cl => {
+            cb({mem: mem, load: cl})
+        })
+    })    
+}
 
 const ws = new WebSocket(`ws://${config[0]}:${config[1]}/`, {
   perMessageDeflate: false
@@ -52,9 +52,22 @@ const ws = new WebSocket(`ws://${config[0]}:${config[1]}/`, {
 
 ws.on('open', function open() {
     console.log("WS", "Open")
-    ws.send(JSON.stringify({type: "establish", message: "GS", name: config[2] }));
+    ws.send(JSON.stringify({type: "establish", message: "GS", name: config[2], id:config[3] }));
 });
   
 ws.on('message', function incoming(data) {
+    data = JSON.parse(data)
     console.log(data);
+
+    if (data.type === "performance") {
+        getSpecs(specs => {
+            specs = JSON.stringify({mem: specs.mem, load: specs.load})
+            ws.send(JSON.stringify({type: 'performance', payload: specs, client: data.client} ))
+        })
+    }
+
+    if (data.type === "system") {
+        ws.send()
+    }
+
 });
