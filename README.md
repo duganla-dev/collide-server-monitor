@@ -1,6 +1,8 @@
 # Collide Server Monitor
 NodeJS Server Monitoring Tool
 
+** Work-In-Progress **
+
 
 ## Server
 `server.js` Is the Server for the client to conntect to.
