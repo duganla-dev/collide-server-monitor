@@ -10,8 +10,10 @@ const wss = new WebSocket.Server({ port: 8080 });
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         message = JSON.parse(message);
-        console.log('Received: %s : %s', ws.connectionRole, message);
-
+        if (!message.payload) { console.log('Received: %s : %s', ws.connectionRole, message);
+        } else { console.log('Received: %s : %s', ws.connectionRole, "Has Payload") };
+        
+        
         if (message.type === "establish") {
             ws.connectionRole = "server";
             ws.clientInfo = {name: message.name, id: message.id};
