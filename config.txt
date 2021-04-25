@@ -1,3 +1,4 @@
 127.0.0.1
 8080
-Sexy Test Machine
+My Servers Name
+My Servers id
