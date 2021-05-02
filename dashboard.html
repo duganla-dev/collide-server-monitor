@@ -138,7 +138,7 @@
         const gemi = (id) => { return document.getElementById(id) } // Ez get element by Id 
         var socket; // Make Socket Var
         var sockVars = { connected: false, update: false, updateInterval: 1000, serverIdList: [] };
-
+        var config = { updateInterval: 1000, chartShift: 60 };
 
         function setStatusDisplay(color, status) {
             gemi('ws-connection-status-display').style.color = color;
@@ -291,10 +291,17 @@
         }
 
         function addData(chart, label, dataset, data) {
-            chart.data.labels.push(label);
-            chart.data.datasets[dataset].data.push(data);
+            var chartLabels = chart.data.labels;
+            var chartDataSet = chart.data.datasets[dataset].data;
+            console.log(chartDataSet.length);
+            if (chartDataSet.length >= config.chartShift) {
+                chartDataSet.splice(0, 1);
+                chartLabels.splice(0, 1);
+            };
+            chartLabels.push(label);
+            chartDataSet.push(data);
             chart.update();
-        }
+        };
 
         function removeData(chart) {
             chart.data.labels.pop();
