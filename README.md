@@ -1,4 +1,4 @@
-# Collide Server Monitor
+# Server Monitor
 NodeJS Server Monitoring Tool
 
 **Work-In-Progress**
@@ -14,3 +14,4 @@ NodeJS Server Monitoring Tool
 `dashboard.html` Is the dashboard to monitor the client(s) 
 
 ## Notes
+This is a small project that I have started, but unlikely to get many updates currently.
